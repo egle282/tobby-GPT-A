@@ -1,6 +1,10 @@
 ```python
 import telebot
 from config import BOT_TOKEN, ADMIN_IDS
+from telebot.types import ReplyKeyboardMarkup, KeyboardButton
+import os
+
+# Импорт модулей
 from modules.context_support import ContextSupport
 from modules.file_module import FileModule
 from modules.multilang import Multilang
@@ -12,10 +16,9 @@ from modules.push_notify import PushNotify
 from modules.cross_platform import CrossPlatform
 from modules.mailing import Mailing
 from modules.ai_handler import AIHandler
-from telebot.types import ReplyKeyboardMarkup, KeyboardButton
-bot = telebot.TeleBot(BOT_TOKEN)
 
-# Глобальные настройки (можно сохранять в файл для персистентности)
+bot = telebot.TeleBot(BOT_TOKEN, threaded=False)
+
 modules_enabled = {
     "context_support": True,
     "file_module": True,
@@ -25,7 +28,7 @@ modules_enabled = {
     "faq_search": True,
     "qr_scanner": True,
     "push_notify": True,
-    "cross_platform": False,
+    "cross_platform": True,
     "mailing": True,
     "ai_handler": True,
 }
@@ -45,24 +48,27 @@ cross_platform = CrossPlatform(bot, feature_on)
 mailing = Mailing(bot, feature_on)
 ai_handler = AIHandler(bot, feature_on)
 
-# Главное меню
 def gen_menu():
     kb = ReplyKeyboardMarkup(resize_keyboard=True)
     kb.add(KeyboardButton("🛈 FAQ"), KeyboardButton("💬 Поддержка"))
-    kb.add(KeyboardButton("Отправить QR") if feature_on('qr_scanner') else None)
-    kb.add(KeyboardButton("📎 Файл") if feature_on('file_module') else None)
-    kb.add(KeyboardButton("Оценить" ) if feature_on('feedback_referral') else None)
+    if feature_on('file_module'):
+        kb.add(KeyboardButton("📎 Файл"))
+    if feature_on('qr_scanner'):
+        kb.add(KeyboardButton("📷 QR-сканер"))
+    if feature_on('mailing'):
+        kb.add(KeyboardButton("📢 Новости"))
+    if feature_on('feedback_referral'):
+        kb.add(KeyboardButton("Оценить"))
     return kb
 
 @bot.message_handler(commands=['start'])
 def handle_start(msg):
     bot.send_message(
         msg.chat.id,
-        'Добро пожаловать! Задайте вопрос либо используйте команды.',
+        f'Привет! Я бот поддержки. Спроси или воспользуйся меню:',
         reply_markup=gen_menu()
     )
-
-# Администрирование
+    # Управление модулями
 @bot.message_handler(commands=['admin_toggle'])
 def admin_toggle(msg):
     if msg.from_user.id not in ADMIN_IDS:
@@ -73,21 +79,33 @@ def admin_toggle(msg):
         if mod not in modules_enabled:
             raise Exception
         modules_enabled[mod] = (state == 'on')
-        bot.reply_to(msg, f"Модуль {mod} теперь {'включен' if state == 'on' else 'выключен'}")
-    except Exception:
-        bot.reply_to(msg, "Формат: /admin_toggle <module> <on/off>")
+        bot.send_message(msg.chat.id, f"Модуль {mod} теперь {'включен' if state == 'on' else 'выключен'}")
+    except Exception as e:
+        bot.send_message(msg.chat.id, "Формат: /admin_toggle module on/off")
 
-@bot.message_handler(content_types=['text','photo','document'])
-def route(msg):
-    # Все модули — приоритетно, далее fallback
+# Отклики с инлайн-оценкой
+@bot.callback_query_handler(func=lambda call: call.data and call.data.startswith('fb_'))
+def handle_feedback(call):
+    stars = call.data[3:]
+    bot.answer_callback_query(call.id, f"Спасибо за {stars}⭐️!")
+    bot.send_message(call.from_user.id, "Спасибо за вашу оценку!")
+
+# Главный роутер: каждый модуль в порядке приоритета
+@bot.message_handler(content_types=['text', 'photo', 'document'])
+def router(msg):
+    if context_support.handle(msg): return
     if file_module.handle(msg): return
-    if qr_scanner.handle(msg): return
     if multilang.handle(msg): return
     if personalized.handle(msg): return
-    if context_support.handle(msg): return
-    if faq_search.handle(msg): return
-    if ai_handler.handle(msg): return
     if feedback_referral.handle(msg): return
-    bot.send_message(msg.chat.id, 'Ваш запрос на обработке! Используйте главное меню, чтобы ускорить ответ.')
+    if faq_search.handle(msg): return
+    if qr_scanner.handle(msg): return
+    if push_notify.handle(msg): return
+    if cross_platform.handle(msg): return
+    if mailing.handle(msg): return
+    if ai_handler.handle(msg): return
+    bot.send_message(msg.chat.id, "Ваш запрос в очереди! Для ускорения выберите задачу из меню.")
 
-bot.polling()
+if __name__ == '__main__':
+    print("Стартую SupportBot!")  # Для мониторинга на Render
+    bot.infinity_polling(skip_pending=True)
