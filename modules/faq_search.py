@@ -1,5 +1,4 @@
-faq_search.py
--------------
+"""
 "Умный" поиск по базе FAQ. Использует rapidfuzz для сравнения текста запроса с вопросами.
 Предлагает наиболее релевантный ответ.
 """
@@ -20,29 +19,30 @@ class FAQSearch:
         try:
             with open(path, 'r', encoding='utf8') as f:
                 self.faq = json.load(f)
-        except:
+        except Exception as e:
             self.faq = []
             try:
-                bot.send_message(ADMIN_IDS[0], "Ошибка загрузки FAQ!")
-            except:
+                bot.send_message(ADMIN_IDS[0], f"Ошибка загрузки FAQ! {e}")
+            except Exception:
                 pass
 
     def handle(self, msg):
-        """Сравнивает запрос пользователя с base-FAQ, возвращает найденный релевантный ответ."""
+        """
+        Сравнивает запрос пользователя с базой FAQ, возвращает найденный релевантный ответ.
+        """
         if not self.feature_on('faq_search'):
             return False
-        text = (msg.text or '').lower()
+        text = (msg.text or '').strip().lower()
         if not text:
             return False
         best = None
         best_score = 0
         for item in self.faq:
-            score = fuzz.ratio(text, item["q"].lower())
+            score = fuzz.ratio(text, item.get("q", "").lower())
             if score > best_score:
                 best_score = score
                 best = item
         if best and best_score > 60:
-            self.bot.send_message(msg.chat.id, f"Q: {best['q']}\nA: {best['a']}")
+            self.bot.send_message(msg.chat.id, f"Q: {best.get('q', '')}\nA: {best.get('a', '')}")
             return True
         return False
-
