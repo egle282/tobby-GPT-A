@@ -1,5 +1,4 @@
-feedback_referral.py
---------------------
+"""
 Модуль сбора отзывов (оценивание бота, 1-5 звезд) и auto-referral — кнопка "Пригласить друга".
 """
 
@@ -13,8 +12,11 @@ class FeedbackReferral:
         """
         self.bot = bot
         self.feature_on = feature_on_fn
-        def handle(self, msg):
-        """Вызывает инлайн-клавиатуру для оставления оценки и получения реферальной ссылки."""
+
+    def handle(self, msg):
+        """
+        Показывает инлайн-клавиатуру для оставления оценки и получения реферальной ссылки.
+        """
         if not self.feature_on('feedback_referral'):
             return False
         if msg.text and "оцен" in msg.text.lower():
@@ -25,4 +27,3 @@ class FeedbackReferral:
             self.bot.send_message(msg.chat.id, "Как вы оцениваете нашу работу?", reply_markup=kb)
             return True
         return False
-
