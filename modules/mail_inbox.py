@@ -1,8 +1,12 @@
-mail_inbox.py
--------------
+"""
 Подключается к IMAP-серверу и сообщает оператору бота о новых входящих письмах.
 """
-import os, imapclient, pyzmail, time
+
+import os
+import imapclient
+import pyzmail
+import time
+
 IMAP_SERVER = os.getenv("IMAP_SERVER", "imap.yandex.ru")
 IMAP_USER = os.getenv("IMAP_USER")
 IMAP_PASS = os.getenv("IMAP_PASS")
@@ -14,7 +18,8 @@ class MailInbox:
         self.bot = bot
         self.feature_on = feature_on_fn
         self.notified_uids = set()
-      def check_mail(self):
+
+    def check_mail(self):
         if not self.feature_on('mail_inbox'):
             return
         with imapclient.IMAPClient(IMAP_SERVER) as client:
@@ -34,4 +39,3 @@ class MailInbox:
 
     def handle(self, msg):
         return False  # Только по расписанию
-
