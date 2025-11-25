@@ -1,5 +1,4 @@
-ai_handler.py
--------------
+"""
 Модуль AI-ответов. На длинные или нестандартные вопросы подключается ChatGPT от OpenAI для формирования ответа.
 """
 
@@ -15,8 +14,11 @@ class AIHandler:
         self.bot = bot
         self.feature_on = feature_on_fn
         openai.api_key = os.getenv('OPENAI_API_KEY', '')
-        def handle(self, msg):
-        """Находит длинные/нестандартные вопросы (>10 слов), отвечает через OpenAI GPT-3.5."""
+
+    def handle(self, msg):
+        """
+        Находит длинные/нестандартные вопросы (>10 слов), отвечает через OpenAI GPT-3.5.
+        """
         if not self.feature_on('ai_handler'):
             return False
         text = (msg.text or '').strip()
@@ -31,11 +33,9 @@ class AIHandler:
                 ],
                 max_tokens=100
             )
-            answer = resp["choices"][0]["message"]["content"]
+            answer = resp["choices"][0]["message"]["content"].strip()
             self.bot.send_message(msg.chat.id, f"🤖 AI-подсказка:\n{answer}")
             return True
         except Exception as e:
             print(e)
             return False
-``
-
