@@ -1,10 +1,22 @@
 python
+"""
+faq_search.py
+-------------
+"Умный" поиск по базе FAQ. Использует rapidfuzz для сравнения текста запроса с вопросами.
+Предлагает наиболее релевантный ответ.
+"""
+
 import json
 from rapidfuzz import fuzz
-from config import FAQ_FILE
+from config import FAQ_FILE, ADMIN_IDS
 
 class FAQSearch:
     def __init__(self, bot, feature_on_fn, path=FAQ_FILE):
+        """
+        :param bot: объект telebot.TeleBot
+        :param feature_on_fn: функция проверки статуса модуля
+        :param path: путь к базе FAQ
+        """
         self.bot = bot
         self.feature_on = feature_on_fn
         try:
@@ -13,17 +25,17 @@ class FAQSearch:
         except:
             self.faq = []
             try:
-                bot.send_message(ADMIN_IDS[0], "FAQ с ошибкой!")
+                bot.send_message(ADMIN_IDS[0], "Ошибка загрузки FAQ!")
             except:
                 pass
 
     def handle(self, msg):
+        """Сравнивает запрос пользователя с base-FAQ, возвращает найденный релевантный ответ."""
         if not self.feature_on('faq_search'):
             return False
         text = (msg.text or '').lower()
         if not text:
             return False
-        # Поиск по FAQ
         best = None
         best_score = 0
         for item in self.faq:
