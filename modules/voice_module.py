@@ -1,17 +1,26 @@
-voice_module.py
----------------
+"""
 Распознает голосовые сообщения с помощью SpeechRecognition, пересылает текст оператору/боту.
 """
+
 import speech_recognition as sr
 from pydub import AudioSegment
-import os, io
+import os
+import io
 
 class VoiceModule:
     def __init__(self, bot, feature_on_fn):
+        """
+        :param bot: объект telebot.TeleBot
+        :param feature_on_fn: функция проверки статуса модуля
+        """
         self.bot = bot
         self.feature_on = feature_on_fn
         self.rec = sr.Recognizer()
-      def handle(self, msg):
+
+    def handle(self, msg):
+        """
+        Обрабатывает голосовые сообщения: распознаёт речь и пересылает текст.
+        """
         if not self.feature_on('voice_module'):
             return False
         if msg.content_type == 'voice':
@@ -27,11 +36,10 @@ class VoiceModule:
                     audio_data = self.rec.record(source)
                     text = self.rec.recognize_google(audio_data, language="ru-RU")
                 self.bot.send_message(msg.chat.id, f"Распознано: {text}")
-                # Можно отправить оператору, или обработать автоответ
+                # Можно отправить оператору или обработать автоответ
                 return True
             except Exception as e:
                 self.bot.send_message(msg.chat.id, "Не разобрал :(")
                 print(e)
                 return True
         return False
-
