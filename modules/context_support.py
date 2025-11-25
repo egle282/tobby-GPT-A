@@ -18,7 +18,9 @@ class ContextSupport:
         self.history_file = HISTORY_FILE
 
     def save_history(self, user_id, message):
-        """Сохраняет последнее сообщение пользователя в файл истории."""
+        """
+        Сохраняет последнее сообщение пользователя в файл истории.
+        """
         try:
             with open(self.history_file, 'r', encoding='utf8') as f:
                 hist = json.load(f)
@@ -31,7 +33,9 @@ class ContextSupport:
             json.dump(hist, f)
 
     def handle(self, msg):
-        """Обрабатывает входящее сообщение, добавляет его в историю пользователя."""
+        """
+        Обрабатывает входящее сообщение, добавляет его в историю пользователя.
+        """
         if not self.feature_on('context_support'):
             return False
         self.save_history(msg.from_user.id, msg.text or 'non-text')
