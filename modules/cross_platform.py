@@ -1,5 +1,4 @@
-cross_platform.py
------------------
+"""
 Модуль кроссплатформенности: быстро предоставляет ссылки на поддержку в других каналах (WhatsApp, VK, сайт).
 """
 
@@ -11,7 +10,8 @@ class CrossPlatform:
         """
         self.bot = bot
         self.feature_on = feature_on_fn
-        def handle(self, msg):
+
+    def handle(self, msg):
         """Предоставляет ссылки на поддержку в других платформах по ключевым словам."""
         if not self.feature_on('cross_platform'):
             return False
@@ -25,4 +25,3 @@ class CrossPlatform:
             self.bot.send_message(msg.chat.id, 'Сайт поддержки: https://support.example.com')
             return True
         return False
-
