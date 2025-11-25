@@ -1,4 +1,3 @@
-python
 import json
 
 def generate_faq_file(path="data/faq.json"):
