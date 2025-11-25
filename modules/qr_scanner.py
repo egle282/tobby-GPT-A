@@ -1,5 +1,4 @@
-qr_scanner.py
--------------
+"""
 Принимает фотографии, распознаёт QR и штрих-коды в них с помощью pyzbar + Pillow.
 Возвращает результат пользователю.
 """
@@ -16,8 +15,11 @@ class QRScanner:
         """
         self.bot = bot
         self.feature_on = feature_on_fn
-        def handle(self, msg):
-        """При получении фото ищет и декодирует коды. Сообщает результат пользователю."""
+
+    def handle(self, msg):
+        """
+        При получении фото ищет и декодирует коды. Сообщает результат пользователю.
+        """
         if not self.feature_on('qr_scanner'):
             return False
         if msg.content_type == 'photo':
@@ -38,4 +40,3 @@ class QRScanner:
                 print(e)
                 return True
         return False
-
