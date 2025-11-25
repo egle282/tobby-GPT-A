@@ -1,15 +1,25 @@
 python
+"""
+feedback_referral.py
+--------------------
+Модуль сбора отзывов (оценивание бота, 1-5 звезд) и auto-referral — кнопка "Пригласить друга".
+"""
+
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 class FeedbackReferral:
     def __init__(self, bot, feature_on_fn):
+        """
+        :param bot: объект telebot.TeleBot
+        :param feature_on_fn: функция проверки статуса модуля
+        """
         self.bot = bot
         self.feature_on = feature_on_fn
-
-    def handle(self, msg):
+        def handle(self, msg):
+        """Вызывает инлайн-клавиатуру для оставления оценки и получения реферальной ссылки."""
         if not self.feature_on('feedback_referral'):
             return False
-        if msg.text and 'оцен' in msg.text.lower():
+        if msg.text and "оцен" in msg.text.lower():
             kb = InlineKeyboardMarkup()
             for i in range(1, 6):
                 kb.add(InlineKeyboardButton(f'⭐️{i}', callback_data=f'fb_{i}'))
@@ -17,11 +27,3 @@ class FeedbackReferral:
             self.bot.send_message(msg.chat.id, "Как вы оцениваете нашу работу?", reply_markup=kb)
             return True
         return False
-
-# В основном файле (bot.py) добавьте:
-# @bot.callback_query_handler(func=lambda call: call.data and call.data.startswith('fb_'))
-# def handle_feedback(call):
-#     stars = call.data[3:]
-#     bot.answer_callback_query(call.id, f"Спасибо за {stars}⭐️!")
-#     bot.send_message(call.from_user.id, "Спасибо за вашу оценку!")
-```
