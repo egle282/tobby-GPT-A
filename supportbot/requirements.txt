@@ -1,7 +1,13 @@
 pyTelegramBotAPI
+Flask
 python-dotenv
 rapidfuzz
 pyzbar
 Pillow
 googletrans==4.0.0rc1
 openai
+imapclient
+pyzmail36
+yagmail
+SpeechRecognition
+pydub
