@@ -1,11 +1,11 @@
-multilang.py
-------------
+"""
 Модуль мультиязычия.
 Позволяет пользователю установить язык через команду /lang XX, автоматически переводит вопросы и ответы.
 Использует Google Translate.
 """
 
 from googletrans import Translator
+
 class Multilang:
     def __init__(self, bot, feature_on_fn):
         """
@@ -18,7 +18,9 @@ class Multilang:
         self.user_langs = {}
 
     def handle(self, msg):
-        """Обрабатывает /lang XX (установка языка) и переводит сообщения пользователя."""
+        """
+        Обрабатывает /lang XX (установка языка) и переводит сообщения пользователя.
+        """
         if not self.feature_on('multilang'):
             return False
         user_id = msg.from_user.id
@@ -28,8 +30,7 @@ class Multilang:
             self.bot.send_message(msg.chat.id, f"Язык переключен на {langcode}")
             return True
         if user_id in self.user_langs and self.user_langs[user_id] != 'ru':
-            translation = self.translator.translate(msg.text, dest=self.user_langs[user_id])
+            translation = self.translator.translate(msg.text, dest=self.user_langs[user_langs])
             self.bot.send_message(msg.chat.id, f"🈯 Перевод: {translation.text}")
             return True
         return False
-
