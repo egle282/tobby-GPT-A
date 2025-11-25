@@ -1,5 +1,3 @@
-python
-"""
 generate_stubs.py
 ------------------
 Автоматически создает пустые классы-модули с docstring для структуры supportbot/modules/.
