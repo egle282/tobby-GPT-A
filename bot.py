@@ -95,7 +95,8 @@ def handle_feedback(call):
     stars = call.data[3:]
     bot.answer_callback_query(call.id, f"Спасибо за {stars}⭐️!")
     bot.send_message(call.from_user.id, "Спасибо за вашу оценку!")
-    @bot.message_handler(content_types=['text', 'voice', 'photo', 'document'])
+    
+@bot.message_handler(content_types=['text', 'voice', 'photo', 'document'])
 def router(msg):
     # Фильтры и голосовые всегда выше всего!
     if custom_filters.handle(msg): return
