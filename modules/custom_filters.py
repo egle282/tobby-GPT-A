@@ -1,7 +1,7 @@
-custom_filters.py
------------------
+"""
 Продвинутый фильтр: блокирует и сообщает о сообщениях с запрещёнными словами или условиями.
 """
+
 STOPWORDS = {"бан", "спам", "оскорбление"}
 
 class CustomFilters:
@@ -15,7 +15,8 @@ class CustomFilters:
         if msg.text and any(word in msg.text.lower() for word in STOPWORDS):
             self.bot.send_message(msg.chat.id, "Это сообщение нарушает правила и не будет обработано.")
             return True  # Прекращаем дальнейшую обработку
-        # Ваши другие проверки — пример:   if len(msg.text) < 3: ...
+        # Ваши другие проверки, например:
+        # if msg.text and len(msg.text) < 3:
+        #     self.bot.send_message(msg.chat.id, "Сообщение слишком короткое.")
+        #     return True
         return False
-``
-
