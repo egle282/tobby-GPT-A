@@ -2,37 +2,27 @@
 Модуль для выдачи персонализированных автоответов на основе истории пользователя.
 Использует последние сообщения пользователя для более релевантной поддержки.
 """
-
-import json
-from config import HISTORY_FILE
-
 class Personalized:
-    def __init__(self, bot, feature_on_fn):
-        """
-        :param bot: объект telebot.TeleBot
-        :param feature_on_fn: функция проверки статуса модуля
-        """
+    def __init__(self, bot, is_enabled_cb):
         self.bot = bot
-        self.feature_on = feature_on_fn
-        self.history_file = HISTORY_FILE
+        self.is_enabled = is_enabled_cb
+        self.await_pers = set()
+        self.user_names = {}
 
     def handle(self, msg):
-        """
-        Проверяет, задавал ли пользователь аналогичный вопрос ранее, и предлагает помощь.
-        """
-        if not self.feature_on('personalized'):
+        if not self.is_enabled('personalized'):
             return False
-        try:
-            with open(self.history_file, 'r', encoding='utf8') as f:
-                hist = json.load(f)
-        except Exception:
-            hist = {}
-        usr = str(msg.from_user.id)
-        last = hist.get(usr, [])
-        if last and msg.text and any('оплат' in q for q in last):
-            self.bot.send_message(
-                msg.chat.id,
-                "В прошлый раз вы спрашивали о платеже. Напомнить как оплатить?"
-            )
+        if msg.text == "✨ Персонализация":
+            self.await_pers.add(msg.from_user.id)
+            self.bot.send_message(msg.chat.id, "Как вас называть? Напишите желаемое имя/ник.")
+            return True
+        if msg.from_user.id in self.await_pers:
+            name = (msg.text or "").strip()
+            if name:
+                self.user_names[msg.from_user.id] = name
+                self.bot.send_message(msg.chat.id, f"Теперь я буду обращаться к вам: {name}")
+                self.await_pers.remove(msg.from_user.id)
+            else:
+                self.bot.send_message(msg.chat.id, "Имя не распознано. Пожалуйста, введите ещё раз.")
             return True
         return False
