@@ -1,27 +1,27 @@
 """
 Модуль кроссплатформенности: быстро предоставляет ссылки на поддержку в других каналах (WhatsApp, VK, сайт).
 """
-
 class CrossPlatform:
-    def __init__(self, bot, feature_on_fn):
-        """
-        :param bot: объект telebot.TeleBot
-        :param feature_on_fn: функция проверки статуса модуля
-        """
+    def __init__(self, bot, is_enabled_cb):
         self.bot = bot
-        self.feature_on = feature_on_fn
-
-    def handle(self, msg):
-        """Предоставляет ссылки на поддержку в других платформах по ключевым словам."""
-        if not self.feature_on('cross_platform'):
+        self.is_enabled = is_enabled_cb
+        self.await_info = set()
+        def handle(self, msg):
+        if not self.is_enabled('cross_platform'):
             return False
-        if msg.text and 'whatsapp' in msg.text.lower():
-            self.bot.send_message(msg.chat.id, 'Поддержка в WhatsApp: https://wa.me/79001234567')
+        if msg.text == "🌍 Другая платформа":
+            self.await_info.add(msg.from_user.id)
+            self.bot.send_message(
+                msg.chat.id,
+                "Введите, с какой платформы вы хотите получить инструкции (например: Web, iOS, Android)."
+            )
             return True
-        if msg.text and 'vk' in msg.text.lower():
-            self.bot.send_message(msg.chat.id, 'VK: https://vk.com/support')
-            return True
-        if msg.text and 'сайт' in msg.text.lower():
-            self.bot.send_message(msg.chat.id, 'Сайт поддержки: https://support.example.com')
+        if msg.from_user.id in self.await_info:
+            platform = (msg.text or "").strip().lower()
+            if platform in ("web", "ios", "android"):
+                self.bot.send_message(msg.chat.id, f"Инструкции для {platform} платформы: (здесь будет текст для {platform})")
+                self.await_info.remove(msg.from_user.id)
+            else:
+                self.bot.send_message(msg.chat.id, "Платформа не распознана. Доступно: Web, iOS, Android.")
             return True
         return False
