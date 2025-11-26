@@ -1,29 +1,35 @@
 """
-Модуль для работы с файлами и фотографиями.
-Сохраняет, уведомляет о получении, подготавливает файлы для оператора.
+Модуль отвечает за простую передачу файлов или фотографий от пользователя в бот.
+После активации (например, через нажатие нужной кнопки) бот ожидает файл любого типа —
+документ, фото или архив. Получив файл, бот подтверждает это сообщением.
+Модуль может быть использован для сбора заявок, документов, скриншотов и других вложений.
+Удобно использовать для сбора информации, обратной связи, обмена файлами с поддержкой.
 """
-
 class FileModule:
-    def __init__(self, bot, feature_on_fn):
+    def __init__(self, bot, is_enabled_cb):
         self.bot = bot
-        self.feature_on = feature_on_fn
-        self.expecting_file = set()
-        def handle(self, msg):
-        if not self.feature_on('file_module'):
+        self.is_enabled = is_enabled_cb
+        self.await_file = set()
+
+    def handle(self, msg):
+        if not self.is_enabled('file_module'):
             return False
+
         if msg.text == "📎 Файл":
-            self.expecting_file.add(msg.from_user.id)
-            self.bot.send_message(msg.chat.id, "Пожалуйста, отправьте файл (документ) — поддерживаются PDF, DOCX, изображения и другие форматы.")
+            self.await_file.add(msg.from_user.id)
+            self.bot.send_message(msg.chat.id, "Жду ваш файл (документ, фото, архив и т.д.)!")
             return True
-        if msg.from_user.id in self.expecting_file and msg.content_type == "document":
-            self.expecting_file.remove(msg.from_user.id)
-            self.bot.send_message(msg.chat.id, f"Документ {msg.document.file_name} успешно получен и отправлен на обработку.")
-            return True
-        if msg.from_user.id in self.expecting_file and msg.content_type in ("photo", ):
-            self.expecting_file.remove(msg.from_user.id)
-            self.bot.send_message(msg.chat.id, "Спасибо! Фото принято как файл и отправлено на обработку.")
-            return True
-        if msg.from_user.id in self.expecting_file:
-            self.bot.send_message(msg.chat.id, "Пожалуйста, отправьте именно файл (или фото), чтобы продолжить.")
-            return True
+            if msg.from_user.id in self.await_file:
+            if msg.content_type == "document":
+                self.await_file.remove(msg.from_user.id)
+                self.bot.send_message(msg.chat.id, f"Файл '{msg.document.file_name}' успешно получен!")
+                return True
+            elif msg.content_type == "photo":
+                self.await_file.remove(msg.from_user.id)
+                self.bot.send_message(msg.chat.id, "Фото получено!")
+                return True
+            else:
+                self.bot.send_message(msg.chat.id, "Пожалуйста, отправьте файл или фото!")
+                return True
+
         return False
