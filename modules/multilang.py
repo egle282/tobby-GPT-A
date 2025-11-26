@@ -3,34 +3,29 @@
 Позволяет пользователю установить язык через команду /lang XX, автоматически переводит вопросы и ответы.
 Использует Google Translate.
 """
-
-from googletrans import Translator
-
-class Multilang:
-    def __init__(self, bot, feature_on_fn):
-        """
-        :param bot: объект telebot.TeleBot
-        :param feature_on_fn: функция проверки статуса модуля
-        """
+class MultiLang:
+    def __init__(self, bot, is_enabled_cb, supported=None):
         self.bot = bot
-        self.feature_on = feature_on_fn
-        self.translator = Translator()
-        self.user_langs = {}
-
-    def handle(self, msg):
-        """
-        Обрабатывает /lang XX (установка языка) и переводит сообщения пользователя.
-        """
-        if not self.feature_on('multilang'):
+        self.is_enabled = is_enabled_cb
+        self.await_lang_choice = set()
+        self.user_lang = {}
+        self.supported = supported or {"RU": "Русский", "EN": "English", "ES": "Español"}
+        def handle(self, msg):
+        if not self.is_enabled('multilang'):
             return False
-        user_id = msg.from_user.id
-        if msg.text and msg.text.lower().startswith('/lang '):
-            langcode = msg.text.split()[1]
-            self.user_langs[user_id] = langcode
-            self.bot.send_message(msg.chat.id, f"Язык переключен на {langcode}")
+        if msg.text == "🌐 Язык":
+            self.await_lang_choice.add(msg.from_user.id)
+            langs = "\n".join([f"{k}: {v}" for k,v in self.supported.items()])
+            self.bot.send_message(msg.chat.id, f"Выберите язык, отправив его код:\n{langs}")
             return True
-        if user_id in self.user_langs and self.user_langs[user_id] != 'ru':
-            translation = self.translator.translate(msg.text, dest=self.user_langs[user_langs])
-            self.bot.send_message(msg.chat.id, f"🈯 Перевод: {translation.text}")
+        if msg.from_user.id in self.await_lang_choice:
+            code = msg.text.upper().strip() if msg.text else ""
+            if code in self.supported:
+                self.user_lang[msg.from_user.id] = code
+                self.await_lang_choice.remove(msg.from_user.id)
+                self.bot.send_message(msg.chat.id, f"Язык установлен: {self.supported[code]}")
+            else:
+                self.bot.send_message(msg.chat.id, "Некорректный код языка. Попробуйте заново. Доступно:\n" +
+                                      ", ".join(self.supported.keys()))
             return True
         return False
