@@ -2,32 +2,25 @@
 Модуль для подписки/рассылки новостей, обновлений, информационных сообщений.
 Пользователь подписывается через ключевое слово ('новост'), сообщения рассылаются send_news(text).
 """
-
 class Mailing:
-    def __init__(self, bot, feature_on_fn):
-        """
-        :param bot: объект telebot.TeleBot
-        :param feature_on_fn: функция проверки статуса модуля
-        """
+    def __init__(self, bot, is_enabled_cb):
         self.bot = bot
-        self.feature_on = feature_on_fn
-        self.subscribers = set()
+        self.is_enabled = is_enabled_cb
+        self.await_message = set()
 
     def handle(self, msg):
-        """Добавляет пользователя в список подписчиков на новости (слово 'новост')."""
-        if not self.feature_on('mailing'):
+        if not self.is_enabled('mailing'):
             return False
-        if msg.text and 'новост' in msg.text.lower():
-            self.subscribers.add(msg.chat.id)
-            self.bot.send_message(msg.chat.id, "Вы подписались на новостную рассылку!")
+        if msg.text == "📬 Рассылка":
+            self.await_message.add(msg.from_user.id)
+            self.bot.send_message(msg.chat.id, "Введите текст рассылки. ВНИМАНИЕ: он уйдёт всем пользователям!")
+            return True
+        if msg.from_user.id in self.await_message:
+            text = (msg.text or "").strip()
+            if text and len(text) > 3:
+                self.await_message.remove(msg.from_user.id)
+                self.bot.send_message(msg.chat.id, f"Рассылка отправлена: {text[:64]}... (эмуляция)")
+            else:
+                self.bot.send_message(msg.chat.id, "Слишком короткий текст. Попробуйте ещё раз.")
             return True
         return False
-
-    def send_news(self, text):
-        """Рассылает новость всем подписчикам."""
-        for uid in self.subscribers.copy():
-            try:
-                self.bot.send_message(uid, f"📰 {text}")
-            except Exception:
-                # Если возникла ошибка (например, юзер заблокировал бота), удалим из подписчиков
-                self.subscribers.discard(uid)
