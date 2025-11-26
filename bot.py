@@ -3,10 +3,10 @@ import telebot
 from config import *
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
-# Импорт основных модулей
+# Импорт всех основных модулей
 from modules.context_support import ContextSupport
 from modules.file_module import FileModule
-from modules.multilang import Multilang
+from modules.multilang import MultiLang
 from modules.personalized import Personalized
 from modules.feedback_referral import FeedbackReferral
 from modules.faq_search import FAQSearch
@@ -15,14 +15,14 @@ from modules.push_notify import PushNotify
 from modules.cross_platform import CrossPlatform
 from modules.mailing import Mailing
 from modules.ai_handler import AIHandler
-
-# Интеграции
 from modules.mail_inbox import MailInbox
 from modules.send_email import SendEmail
 from modules.voice_module import VoiceModule
 from modules.custom_filters import CustomFilters
 
 bot = telebot.TeleBot(BOT_TOKEN, threaded=False)
+
+# Управление наличием модулей (вкл/выкл)
 modules_enabled = {
     "context_support": True,
     "file_module": True,
@@ -43,10 +43,10 @@ modules_enabled = {
 
 def feature_on(name): return modules_enabled.get(name, False)
 
-# Инициализация
+# Инициализация всех модулей (см. docstring внутри каждого модуля)
 context_support = ContextSupport(bot, feature_on)
 file_module = FileModule(bot, feature_on)
-multilang = Multilang(bot, feature_on)
+multilang = MultiLang(bot, feature_on)
 personalized = Personalized(bot, feature_on)
 feedback_referral = FeedbackReferral(bot, feature_on)
 faq_search = FAQSearch(bot, feature_on)
@@ -55,11 +55,10 @@ push_notify = PushNotify(bot, feature_on)
 cross_platform = CrossPlatform(bot, feature_on)
 mailing = Mailing(bot, feature_on)
 ai_handler = AIHandler(bot, feature_on)
-mail_inbox = MailInbox(bot, feature_on)
+mail_inbox = MailInbox(bot, feature_on)  # В демо-реализации может не иметь check_mail
 send_email = SendEmail(bot, feature_on)
 voice_module = VoiceModule(bot, feature_on)
 custom_filters = CustomFilters(bot, feature_on)
-
 def gen_menu():
     kb = ReplyKeyboardMarkup(resize_keyboard=True)
     kb.add("🛈 FAQ", "💬 Поддержка")
@@ -86,7 +85,7 @@ def admin_toggle(msg):
         if mod not in modules_enabled:
             raise Exception
         modules_enabled[mod] = (state == 'on')
-        bot.send_message(msg.chat.id, f"Модуль `{mod}` теперь {'включен' if state == 'on' else 'выключен'}")
+        bot.send_message(msg.chat.id, f"Модуль {mod} теперь {'включён' if state == 'on' else 'выключен'}")
     except Exception:
         bot.send_message(msg.chat.id, "Формат: /admin_toggle module on/off")
 
@@ -95,13 +94,13 @@ def handle_feedback(call):
     stars = call.data[3:]
     bot.answer_callback_query(call.id, f"Спасибо за {stars}⭐️!")
     bot.send_message(call.from_user.id, "Спасибо за вашу оценку!")
-    
+
 @bot.message_handler(content_types=['text', 'voice', 'photo', 'document'])
 def router(msg):
-    # Фильтры и голосовые всегда выше всего!
+    # Фильтры и голосовые — всегда в приоритете
     if custom_filters.handle(msg): return
     if voice_module.handle(msg): return
-    # ядро + интеграции дальше
+    # Все остальные модули, согласно их специализации
     if context_support.handle(msg): return
     if file_module.handle(msg): return
     if multilang.handle(msg): return
@@ -114,19 +113,23 @@ def router(msg):
     if mailing.handle(msg): return
     if ai_handler.handle(msg): return
     if send_email.handle(msg): return
-    bot.send_message(msg.chat.id, "Ваш запрос передан в поддержку — выберите задачу из меню для ускорения.")
+    if mail_inbox.handle(msg): return
+    bot.send_message(msg.chat.id, "Ваш запрос передан в поддержку — выберите задачу из меню для ускорения ответа.")
 
-import threading, time
+import threading
+import time
 
 def mail_loop():
     while True:
         try:
-            mail_inbox.check_mail()
+            # Если есть функция проверки входящей почты — вызови (зависит от реализации)
+            if hasattr(mail_inbox, 'check_mail'):
+                mail_inbox.check_mail()
         except Exception as ex:
             print(f"Mail check error: {ex}")
         time.sleep(60)
 
-# WEBHOOK MODE FOR CLOUD (RENDER, etc.)
+# WEBHOOK MODE FOR CLOUD (RENDER, и т.п.)
 if __name__ == '__main__':
     if WEBHOOK_URL:
         bot.remove_webhook()
@@ -134,7 +137,6 @@ if __name__ == '__main__':
         from flask import Flask, request
 
         app = Flask(__name__)
-
         @app.route('/', methods=['POST'])
         def receive_update():
             if request.headers.get('content-type') == 'application/json':
