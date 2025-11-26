@@ -3,39 +3,25 @@
 Используется для персонализации автоответов, анализа и построения контекста ответа.
 """
 
-import json
-from config import HISTORY_FILE
-
 class ContextSupport:
     def __init__(self, bot, feature_on_fn):
-        """
-        :param bot: объект telebot.TeleBot
-        :param feature_on_fn: функция проверки статуса модуля
-        """
         self.bot = bot
         self.feature_on = feature_on_fn
-        self.history_file = HISTORY_FILE
-
-    def save_history(self, user_id, message):
-        """
-        Сохраняет последнее сообщение пользователя в файл истории.
-        """
-        try:
-            with open(self.history_file, 'r', encoding='utf8') as f:
-                hist = json.load(f)
-        except Exception:
-            hist = {}
-        usr = str(user_id)
-        hist.setdefault(usr, []).append(message)
-        hist[usr] = hist[usr][-10:]  # Only last 10
-        with open(self.history_file, 'w', encoding='utf8') as f:
-            json.dump(hist, f, ensure_ascii=False)
-
-    def handle(self, msg):
-        """
-        Обрабатывает входящее сообщение, добавляет его в историю пользователя.
-        """
+        self.waiting_support_msg = set()
+        def handle(self, msg):
         if not self.feature_on('context_support'):
             return False
-        self.save_history(msg.from_user.id, msg.text or 'non-text')
-        return False  # Контекст — вспомогательный модуль, не перехватывает сообщения
+        if msg.text == "💬 Поддержка":
+            self.waiting_support_msg.add(msg.from_user.id)
+            self.bot.send_message(msg.chat.id, "Опишите вашу проблему или вопрос, и мы скоро свяжемся с вами.")
+            return True
+        if msg.from_user.id in self.waiting_support_msg and msg.text:
+            self.waiting_support_msg.remove(msg.from_user.id)
+            # Здесь отправляется сообщение админу, например:
+            # self.bot.send_message(ADMIN_ID, f"Новое обращение от @{msg.from_user.username} ({msg.chat.id}):\n{msg.text}")
+            self.bot.send_message(msg.chat.id, "Спасибо! Обращение отправлено специалисту, скоро свяжемся с вами.")
+            return True
+        if msg.from_user.id in self.waiting_support_msg:
+            self.bot.send_message(msg.chat.id, "Пожалуйста, опишите проблему текстом.")
+            return True
+        return False
