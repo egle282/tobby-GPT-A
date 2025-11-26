@@ -5,6 +5,7 @@
 Модуль может быть использован для сбора заявок, документов, скриншотов и других вложений.
 Удобно использовать для сбора информации, обратной связи, обмена файлами с поддержкой.
 """
+
 class FileModule:
     def __init__(self, bot, is_enabled_cb):
         self.bot = bot
@@ -17,19 +18,22 @@ class FileModule:
 
         if msg.text == "📎 Файл":
             self.await_file.add(msg.from_user.id)
-            self.bot.send_message(msg.chat.id, "Жду ваш файл (документ, фото, архив и т.д.)!")
+            self.bot.send_message(msg.chat.id, "Пожалуйста, отправьте файл (документ или изображение).")
             return True
-            if msg.from_user.id in self.await_file:
+
+        if msg.from_user.id in self.await_file:
             if msg.content_type == "document":
                 self.await_file.remove(msg.from_user.id)
-                self.bot.send_message(msg.chat.id, f"Файл '{msg.document.file_name}' успешно получен!")
+                self.bot.send_message(msg.chat.id, "Файл получен. Спасибо!")
+                # Здесь можно добавить сохранение или отправку файла админу
                 return True
             elif msg.content_type == "photo":
                 self.await_file.remove(msg.from_user.id)
-                self.bot.send_message(msg.chat.id, "Фото получено!")
+                self.bot.send_message(msg.chat.id, "Фото получено. Спасибо!")
+                # Здесь можно добавить сохранение или отправку фото админу
                 return True
             else:
-                self.bot.send_message(msg.chat.id, "Пожалуйста, отправьте файл или фото!")
+                self.bot.send_message(msg.chat.id, "Жду файл или фото!")
                 return True
 
         return False
