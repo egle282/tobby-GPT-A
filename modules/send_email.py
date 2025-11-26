@@ -1,27 +1,29 @@
 """
 Позволяет пользователю отправить e-mail в поддержку через команду /email.
 """
-
 class SendEmail:
-    def __init__(self, bot, feature_on_fn):
+    def __init__(self, bot, is_enabled_cb, admin_email):
         self.bot = bot
-        self.feature_on = feature_on_fn
-        self.expecting_email = set()
+        self.is_enabled = is_enabled_cb
+        self.admin_email = admin_email
+        self.awaiting_email = set()
 
     def handle(self, msg):
-        if not self.feature_on('send_email'):
+        if not self.is_enabled('send_email'):
             return False
+
         if msg.text == "Отправить Email":
-            self.expecting_email.add(msg.from_user.id)
-            self.bot.send_message(msg.chat.id, "Введите текст письма, и мы отправим его службе поддержки.")
+            self.awaiting_email.add(msg.from_user.id)
+            self.bot.send_message(msg.chat.id, "Введите текст письма — мы отправим его в поддержку.")
             return True
-        if msg.from_user.id in self.expecting_email and msg.text:
-            self.expecting_email.remove(msg.from_user.id)
-            email_text = msg.text
-            # *Здесь должна быть отправка по SMTP на email поддержки*
-            self.bot.send_message(msg.chat.id, f"Ваше сообщение отправлено на email поддержки!\n\nТекст письма:\n{email_text}")
-            return True
-        if msg.from_user.id in self.expecting_email:
-            self.bot.send_message(msg.chat.id, "Жду текст письма.")
-            return True
+
+        if msg.from_user.id in self.awaiting_email:
+            if msg.text:
+                self.awaiting_email.remove(msg.from_user.id)
+                self.bot.send_message(msg.chat.id, f"Ваш текст:\n{msg.text}\n\nотправлен на {self.admin_email}")
+                return True
+            else:
+                self.bot.send_message(msg.chat.id, "Жду текст письма, отправьте ещё раз.")
+                return True
+
         return False
