@@ -10,6 +10,8 @@ WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 PORT = int(os.getenv("PORT", 5000))
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
+FREE_TEST_MODE = True   # (True) Админ-режим: все открыто!(False), ограничения и подписка начинают работать
+ADMINS = [123456789]    # id админов
 
 # Почта IMAP и SMTP
 IMAP_SERVER = os.getenv("IMAP_SERVER")
