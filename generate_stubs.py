@@ -1,7 +1,8 @@
-generate_stubs.py
-------------------
+"""
 Автоматически создает пустые классы-модули с docstring для структуры supportbot/modules/.
 Просто добавьте имена модулей в список module_names и запустите скрипт!
+Заглушка: скрипт для генерации вспомогательных файлов.
+Можно добавить автосоздание data/*.json, автогенерацию .env.example, файлов stubs или документа .
 """
 
 import os
@@ -15,7 +16,7 @@ dir_path = os.path.join(os.path.dirname(__file__), "modules")
 
 stub_tpl = '''"""
 {modulename}.py
---------------
+
 [Описание модуля.]
 """
 class {classname}:
@@ -25,7 +26,7 @@ class {classname}:
 
     def handle(self, msg):
         return False
-'''
+"""
 
 if not os.path.exists(dir_path):
     os.makedirs(dir_path)
