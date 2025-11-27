@@ -1,6 +1,10 @@
 from telebot import TeleBot
 from utils.limits import can_use_feature, add_user_action
 
+from loader import bot
+@bot.message_handler(commands=['...'])
+def func(...):
+
 # =========================
 # 1. Голосовое распознавание
 # =========================
