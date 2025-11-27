@@ -1,3 +1,5 @@
+from loader import bot
+
 from telebot import types
 from utils.subscription import add_subscriber, remove_subscriber
 from config import ADMINS
