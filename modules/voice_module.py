@@ -10,7 +10,8 @@ class VoiceModule:
         self.bot = bot
         self.is_enabled = is_enabled_cb
         self.await_voice = set()
-        def handle(self, msg):
+
+    def handle(self, msg):
         if not self.is_enabled('voice_module'):
             return False
 
@@ -20,12 +21,11 @@ class VoiceModule:
             return True
 
         if msg.from_user.id in self.await_voice:
-            if msg.content_type == "voice":
+            if getattr(msg, 'content_type', None) == "voice":
                 self.await_voice.remove(msg.from_user.id)
                 self.bot.send_message(msg.chat.id, "Голосовое получено. (Здесь можно добавить распознавание текста)")
-                return True
             else:
                 self.bot.send_message(msg.chat.id, "Жду именно голосовое сообщение.")
-                return True
+            return True
 
         return False
