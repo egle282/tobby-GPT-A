@@ -1,4 +1,4 @@
-from telebot import TeleBot
 from config import BOT_TOKEN
+import telebot
 
-bot = TeleBot(BOT_TOKEN)
+bot = telebot.TeleBot(BOT_TOKEN, threaded=False)
