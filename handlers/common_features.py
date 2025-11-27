@@ -1,6 +1,10 @@
 from telebot import TeleBot
 from loader import bot
 
+from loader import bot
+@bot.message_handler(commands=['...'])
+def func(...):
+
 # ===========
 # СТАРТОВОЕ МЕНЮ
 # ===========
