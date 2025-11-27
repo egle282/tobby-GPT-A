@@ -1,6 +1,4 @@
 from loader import bot
-# Создай экземпляр бота
-bot = telebot.TeleBot(BOT_TOKEN, threaded=False)
 
 # Важно: все хендлеры импортируются после создания bot!
 import handlers.menu
