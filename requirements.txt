@@ -12,3 +12,6 @@ yagmail
 SpeechRecognition
 pydub
 requests
+numpy
+tesserocr
+python-dotenv  # если хотите подключить .env для секретов
