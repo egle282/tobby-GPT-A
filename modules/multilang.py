@@ -7,26 +7,39 @@
 class MultiLang:
     def __init__(self, bot, is_enabled_cb, supported=None):
         self.bot = bot
-        self.is_enabled = is_enabled_cb
-        self.await_lang_choice = set()
-        self.user_lang = {}
+        self.is_enabled = is_enabled_cb  # Коллбэк-функция для проверки, включен ли мультиязычный модуль
+        self.await_lang_choice = set()   # Пользователи, ожидающие выбора языка
+        self.user_lang = {}              # Словарь: user_id -> lang_code
         self.supported = supported or {"RU": "Русский", "EN": "English", "ES": "Español"}
-        def handle(self, msg):
+
+    def handle(self, msg):
         if not self.is_enabled('multilang'):
             return False
+
         if msg.text == "🌐 Язык":
             self.await_lang_choice.add(msg.from_user.id)
-            langs = "\n".join([f"{k}: {v}" for k,v in self.supported.items()])
-            self.bot.send_message(msg.chat.id, f"Выберите язык, отправив его код:\n{langs}")
+            langs = "\n".join([f"{k}: {v}" for k, v in self.supported.items()])
+            self.bot.send_message(
+                msg.chat.id,
+                f"Выберите язык, отправив его код:\n{langs}"
+            )
             return True
+
         if msg.from_user.id in self.await_lang_choice:
-            code = msg.text.upper().strip() if msg.text else ""
+            code = (msg.text or "").upper().strip()
             if code in self.supported:
                 self.user_lang[msg.from_user.id] = code
                 self.await_lang_choice.remove(msg.from_user.id)
-                self.bot.send_message(msg.chat.id, f"Язык установлен: {self.supported[code]}")
+                self.bot.send_message(
+                    msg.chat.id,
+                    f"Язык установлен: {self.supported[code]}"
+                )
             else:
-                self.bot.send_message(msg.chat.id, "Некорректный код языка. Попробуйте заново. Доступно:\n" +
-                                      ", ".join(self.supported.keys()))
+                codes = ", ".join(self.supported.keys())
+                self.bot.send_message(
+                    msg.chat.id,
+                    f"Некорректный код языка. Попробуйте заново. Доступно:\n{codes}"
+                )
             return True
+
         return False
