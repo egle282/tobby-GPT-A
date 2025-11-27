@@ -8,6 +8,7 @@ HISTORY_FILE = f"{DATA_PATH}user_history.json"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 PORT = int(os.getenv("PORT", 5000))
+ADMIN_EMAIL = "your-admin-email@example.com"
 
 # Почта IMAP и SMTP
 IMAP_SERVER = os.getenv("IMAP_SERVER")
