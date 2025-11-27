@@ -1,15 +1,2 @@
-def is_premium(chat_id):
-    from config import FREE_TEST_MODE, ADMINS
-    from utils.subs import check_subscription
-    return FREE_TEST_MODE or check_subscription(chat_id) or chat_id in ADMINS
-
-def can_use_feature(chat_id):
-    if is_premium(chat_id):
-        return True
-    #    ... иначе считаем вызовы
-    history = load_json("data/user_history.json")
-    today = time.strftime('%Y-%m-%d')
-    count = history.get(str(chat_id), {}).get(today, 0)
-    return count < 5
-
+{}
 
