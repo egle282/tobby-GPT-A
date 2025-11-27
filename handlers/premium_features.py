@@ -1,3 +1,5 @@
+from loader import bot
+
 from telebot import TeleBot
 from utils.limits import can_use_feature, add_user_action
 
