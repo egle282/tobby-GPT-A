@@ -18,6 +18,21 @@ FREE_TEST_MODE = True
 # Список Telegram ID владельцев/админов (им всё доступно всегда)
 ADMINS = [os.getenv("ADMIN_IDS"), 987654321]
 
+# --- лимиты по функционалу (для бесплатных) ---
+FEATURE_LIMITS = {
+    'voice': 3,     # Голосовое — 3 раза в сутки бесплатно
+    'pdf': 5,       # PDF/отправка на мейл — 5 раз в сутки бесплатно
+    'llm': 2,       # AI/LLM — 2 раза
+    'docx': 2,      # Работа с docx/tar и проч. — 2
+    'cabinet': 0,   # Кабинет — только для подписчиков
+    'vip_notif': 0, # Особые уведомления — только подписка
+    'no_ads': 0,    # Отключение рекламы — только подписка
+    'support': 1,   # Премиум-поддержка — 1 раз/сутки бесплатно
+}
+
+FREE_TEST_MODE = True    # Быстрое тестовое открытие всех возможностей для всех
+ADMINS = [os.getenv("ADMIN_IDS"), 987654321]
+
 # Почта IMAP и SMTP
 IMAP_SERVER = os.getenv("IMAP_SERVER")
 IMAP_USER = os.getenv("IMAP_USER")
