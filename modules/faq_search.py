@@ -9,11 +9,11 @@ import json
 from rapidfuzz import fuzz
 
 class FAQSearch:
-    def __init__(self, bot, is_enabled_cb, faq_path='faq.json'):
+    def __init__(self, bot, is_enabled_cb, faq_path= "data/faq.json"):
         self.bot = bot
         self.is_enabled = is_enabled_cb
         try:
-            with open('data/faq_path, "r", encoding="utf-8") as f:
+            with open(faq_path, "r", encoding="utf-8") as f:
                 self.faq = json.load(f)
         except Exception as e:
             self.faq = []
