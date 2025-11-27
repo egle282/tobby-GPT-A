@@ -1,4 +1,4 @@
-from bot import bot
+from loader import bot
 from utils.states import set_state, get_state, clear_state
 from utils.keyboards import kb_main, kb_location
 from config import NEWS_API_KEY
