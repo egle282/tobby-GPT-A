@@ -17,15 +17,28 @@ class VoiceModule:
 
         if msg.text == "🎤 Голосовое":
             self.await_voice.add(msg.from_user.id)
-            self.bot.send_message(msg.chat.id, "Жду голосовое сообщение!")
+            self.bot.send_message(msg.chat.id, "Жду голосовое или аудиофайл!")
             return True
 
         if msg.from_user.id in self.await_voice:
-            if getattr(msg, 'content_type', None) == "voice":
+            content_type = getattr(msg, 'content_type', None)
+            if content_type in ("voice", "audio"):
                 self.await_voice.remove(msg.from_user.id)
-                self.bot.send_message(msg.chat.id, "Голосовое получено. (Здесь можно добавить распознавание текста)")
+                if content_type == "voice":
+                    self.bot.send_message(
+                        msg.chat.id, 
+                        "Голосовое сообщение получено. (Здесь можно добавить распознавание речи)"
+                    )
+                else:  # content_type == "audio"
+                    self.bot.send_message(
+                        msg.chat.id, 
+                        "Аудиофайл получен. (Здесь можно добавить анализ/обработку аудиофайла)"
+                    )
             else:
-                self.bot.send_message(msg.chat.id, "Жду именно голосовое сообщение.")
+                self.bot.send_message(
+                    msg.chat.id, 
+                    "Жду именно голосовое сообщение или аудиофайл."
+                )
             return True
 
         return False
