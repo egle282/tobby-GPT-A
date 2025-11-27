@@ -10,6 +10,7 @@ import handlers.news
 import handlers.faq
 import handlers.voice
 import handlers.email
+import handlers.donate
 
 if __name__ == '__main__':
     bot.infinity_polling()
