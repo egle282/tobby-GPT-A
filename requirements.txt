@@ -11,3 +11,4 @@ pyzmail36
 yagmail
 SpeechRecognition
 pydub
+requests
