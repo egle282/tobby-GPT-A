@@ -9,14 +9,17 @@ class CustomFilters:
         self.bot = bot
         self.is_enabled = is_enabled_cb
         self.await_check = set()
-        self.blacklist = blacklist or set()
-        def handle(self, msg):
+        self.blacklist = set(blacklist) if blacklist else set()
+
+    def handle(self, msg):
         if not self.is_enabled('custom_filters'):
             return False
+
         if msg.text == "🔍 Проверка":
             self.await_check.add(msg.from_user.id)
             self.bot.send_message(msg.chat.id, "Введите сообщение для проверки на стоп-слова или спам.")
             return True
+
         if msg.from_user.id in self.await_check:
             text = (msg.text or "").lower()
             if any(w in text for w in self.blacklist):
@@ -25,4 +28,5 @@ class CustomFilters:
                 self.bot.send_message(msg.chat.id, "Проверка пройдена, всё чисто.")
             self.await_check.remove(msg.from_user.id)
             return True
+
         return False
