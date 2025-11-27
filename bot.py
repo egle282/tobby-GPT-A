@@ -1,7 +1,7 @@
 import os
 import telebot
 from config import *
-from telebot.types import ReplyKeyboardMarkup, KeyboardButton
+from telebot.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 
 # Импорт всех основных модулей
 from modules.context_support import ContextSupport
@@ -28,7 +28,6 @@ bot = telebot.TeleBot(BOT_TOKEN, threaded=False)
 
 def gen_menu():
     kb = ReplyKeyboardMarkup(resize_keyboard=True)
-    kb.add("🛈 FAQ", "💬 Поддержка")
     kb.add("📎 Файл", "📷 QR-сканер")
     kb.add("📢 Новости", "🎤 Голосовое")
     kb.add("Оценить", "Отправить Email")
@@ -41,6 +40,8 @@ def set_bot_commands(bot):
         BotCommand("start", "Перезапустить бота"),
         BotCommand("donate", "Поддержать проект"),
         BotCommand("news", "Актуальные новости по вашему региону"),
+        BotCommand("FAQ", "🛈 Узнать"),
+        BotCommand("SOS", "💬 Поддержка"),
     ])
 set_bot_commands(bot)
 # -----------------------------------
@@ -51,7 +52,6 @@ def location_keyboard():
     kb = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     kb.add(KeyboardButton("Отправить местоположение", request_location=True))
     return kb
-
 def get_city_from_location(lat, lon):
     url = f"https://nominatim.openstreetmap.org/reverse"
     params = {'format': 'json', 'lat': lat, 'lon': lon, 'zoom': 10, 'addressdetails': 1}
@@ -90,7 +90,16 @@ def get_news_by_city(city, country=None, api_key=None):
 @bot.message_handler(commands=['news'])
 @bot.message_handler(func=lambda msg: msg.text == "📢 Новости")
 def ask_location(msg):
-    bot.send_message(msg.chat.id, "Пожалуйста, отправьте своё местоположение для подбора новостей:", reply_markup=location_keyboard())
+    bot.send_message(
+        msg.chat.id,
+        "Пожалуйста, отправьте своё местоположение для подбора новостей:",
+        reply_markup=ReplyKeyboardRemove()  # Скрываем старое меню
+    )
+    bot.send_message(
+        msg.chat.id,
+        "Отправьте геолокацию или вернитесь в меню:", 
+        reply_markup=location_keyboard()
+    )
 
 # Обработка геолокации пользователя
 @bot.message_handler(content_types=['location'])
@@ -98,16 +107,18 @@ def handle_location(msg):
     lat = msg.location.latitude
     lon = msg.location.longitude
     city, country = get_city_from_location(lat, lon)
+    bot.send_message(msg.chat.id, f"Определён город: {city.capitalize() if city else '-'}",
+                     reply_markup=ReplyKeyboardRemove()) # Скрываем клавиатуру после получения города
     if not city:
         bot.send_message(msg.chat.id, "Не удалось определить ваш город, попробуйте ввести его вручную.")
         return
-    bot.send_message(msg.chat.id, f"Определён город: {city.capitalize()}")
     news = get_news_by_city(city, country, api_key=NEWS_API_KEY)
     if news:
         bot.send_message(msg.chat.id, "\n\n".join(news))
     else:
         bot.send_message(msg.chat.id, "К сожалению, не найдено свежих новостей для вашего региона.")
-
+    # После завершения показываем основное меню
+    bot.send_message(msg.chat.id, "Главное меню:", reply_markup=gen_menu())
 # Если хотите, чтобы пользователь мог ввести город сам, можно добавить ещё один handler:
 @bot.message_handler(func=lambda msg: msg.reply_to_message and "введите его вручную" in msg.reply_to_message.text.lower())
 def manual_city_news(msg):
@@ -117,6 +128,8 @@ def manual_city_news(msg):
         bot.send_message(msg.chat.id, "\n\n".join(news))
     else:
         bot.send_message(msg.chat.id, "К сожалению, не найдено свежих новостей для этого города.")
+    # Возвращаем меню
+    bot.send_message(msg.chat.id, "Главное меню:", reply_markup=gen_menu())
 
 # ----------- /NewsAPI блок -------------
 
@@ -159,11 +172,23 @@ custom_filters = CustomFilters(bot, feature_on)
 
 @bot.message_handler(commands=['start'])
 def handle_start(msg):
+    # Скрываем текущее меню и приветствуем пользователя
     bot.send_message(
         msg.chat.id,
-        f'Привет! Я Helpino — бот поддержки. Выберите действие или задайте вопрос:',
+        'Привет! Я Helpino — бот поддержки. Выберите действие или задайте вопрос:',
+        reply_markup=ReplyKeyboardRemove()
+    )
+    # Выводим главное меню отдельным сообщением
+    bot.send_message(
+        msg.chat.id,
+        "Главное меню:",
         reply_markup=gen_menu()
     )
+
+@bot.message_handler(commands=['donate'])
+def handle_donate(msg):
+    bot.send_message(msg.chat.id, "Спасибо за интерес к поддержке!", reply_markup=ReplyKeyboardRemove())
+    bot.send_message(msg.chat.id, "Главное меню:", reply_markup=gen_menu())
 
 @bot.message_handler(commands=['admin_toggle'])
 def admin_toggle(msg):
@@ -182,7 +207,7 @@ def admin_toggle(msg):
 @bot.callback_query_handler(func=lambda call: call.data and call.data.startswith('fb_'))
 def handle_feedback(call):
     stars = call.data[3:]
-    bot.answer_callback_query(call.id, f"Спасибо за {stars}￼️!")
+    bot.answer_callback_query(call.id, f"Спасибо за {stars}️!")
     bot.send_message(call.from_user.id, "Спасибо за вашу оценку!")
 
 @bot.message_handler(content_types=['text', 'voice', 'photo', 'document'])
