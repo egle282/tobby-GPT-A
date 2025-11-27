@@ -56,7 +56,7 @@ cross_platform = CrossPlatform(bot, feature_on)
 mailing = Mailing(bot, feature_on)
 ai_handler = AIHandler(bot, feature_on)
 mail_inbox = MailInbox(bot, feature_on)  # В демо-реализации может не иметь check_mail
-send_email = SendEmail(bot, feature_on)
+send_email = SendEmail(bot, feature_on, ADMIN_EMAIL)
 voice_module = VoiceModule(bot, feature_on)
 custom_filters = CustomFilters(bot, feature_on)
 def gen_menu():
