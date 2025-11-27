@@ -1,4 +1,4 @@
-from bot import bot
+from loader import bot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 @bot.message_handler(commands=['donate'])
