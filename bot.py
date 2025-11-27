@@ -39,9 +39,8 @@ def set_bot_commands(bot):
     bot.set_my_commands([
         BotCommand("start", "Перезапустить бота"),
         BotCommand("donate", "Поддержать проект"),
-        BotCommand("news", "Актуальные новости по вашему региону"),
-        BotCommand("FAQ", "🛈 Узнать"),
-        BotCommand("SOS", "💬 Поддержка"),
+        BotCommand("faq", "🛈 Узнать"),
+        BotCommand("sos", "💬 Поддержка"),
     ])
 set_bot_commands(bot)
 # -----------------------------------
