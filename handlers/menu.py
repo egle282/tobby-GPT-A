@@ -1,4 +1,4 @@
-from bot import bot
+from loader import bot
 from utils.keyboards import kb_main
 
 @bot.message_handler(commands=['start'])
