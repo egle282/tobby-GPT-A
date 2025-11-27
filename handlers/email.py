@@ -1,4 +1,4 @@
-from bot import bot
+from loader import bot
 from utils.states import set_state, get_state, clear_state
 from utils.keyboards import kb_main
 from modules.send_email import SendEmail
