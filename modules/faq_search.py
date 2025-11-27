@@ -13,7 +13,7 @@ class FAQSearch:
         self.bot = bot
         self.is_enabled = is_enabled_cb
         try:
-            with open(faq_path, "r", encoding="utf-8") as f:
+            with open('data/faq_path, "r", encoding="utf-8") as f:
                 self.faq = json.load(f)
         except Exception as e:
             self.faq = []
