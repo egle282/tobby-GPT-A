@@ -1,6 +1,4 @@
-from config import BOT_TOKEN
-import telebot
-
+from loader import bot
 # Создай экземпляр бота
 bot = telebot.TeleBot(BOT_TOKEN, threaded=False)
 
@@ -12,8 +10,6 @@ import handlers.faq
 import handlers.voice
 import handlers.email
 import handlers.donate
-
-# Подключаем новые обработчики:
 import handlers.common_features   # здесь /start, /help, бесплатные команды
 import handlers.premium_features # здесь премиальные/лимитные команды
 
