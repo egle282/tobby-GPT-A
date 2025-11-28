@@ -9,7 +9,7 @@ def is_enabled_cb():
     return True
 
 voice_module = VoiceModule(bot, is_enabled_cb)
-ai_handler = AIHandler(bot)
+ai_handler = AIHandler(bot, is_enabled_cb)
 
 @bot.message_handler(func=lambda msg: msg.text == "🎤 Голосовое")
 def handle_voice_start(msg):
