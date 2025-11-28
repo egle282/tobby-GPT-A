@@ -1,6 +1,9 @@
 from loader import bot
 from utils.keyboards import kb_main
 
+def is_enabled_cb():
+    return True
+
 @bot.message_handler(commands=['faq'])
 @bot.message_handler(func=lambda msg: msg.text == "FAQ")
 def handle_faq(msg):
