@@ -20,7 +20,7 @@ def is_admin(user_id, *args, **kwargs):
     Заглушка на проверку роли администратора.
     Сравнивай user_id с заданными ID админов.
     """
-    ADMIN_IDS = [12345678]  # замени на реальные ID
+    ADMIN_IDS = [os.getenv("ADMIN_IDS")]  # замени на реальные ID
     return user_id in ADMIN_IDS
 def is_beta_tester(user_id, *args, **kwargs):
     """Проверяет, является ли пользователь бета-тестером."""
