@@ -1,27 +1,41 @@
 # utils/decorators.py
 from functools import wraps
+from telebot.types import Message
 
-def restricted_access(check_func):
-    """Декоратор для ограничения доступа к функциям по условию."""
+def require_subscription(check_func):
+    """
+    Декоратор: пропускает обработчик, если check_func(user_id) == True.
+    """
     def decorator(func):
         @wraps(func)
-        def wrapper(*args, **kwargs):
-            if check_func(*args, **kwargs):
-                return func(*args, **kwargs)
+        def wrapper(message: Message, *args, **kwargs):
+            if check_func(message.from_user.id):
+                return func(message, *args, **kwargs)
             else:
-                # Если хочется отправлять сообщение через бота о запрете:
-                msg = args[0] if args else None
-                if hasattr(msg, 'chat') and hasattr(msg, 'bot'):
-                    msg.bot.send_message(msg.chat.id, "⛔️ Доступ запрещён.")
-                else:
-                    print("⛔️ Доступ запрещён.")
+                message.bot.send_message(message.chat.id, "❗ Эта команда доступна только с подпиской.")
         return wrapper
     return decorator
 
-def simple_logger(func):
-    """Простой декоратор-логгер."""
+def require_admin(check_func):
+    """
+    Декоратор: пропускает обработчик для админов.
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(message: Message, *args, **kwargs):
+            if check_func(message.from_user.id):
+                return func(message, *args, **kwargs)
+            else:
+                message.bot.send_message(message.chat.id, "⛔ Только для администраторов.")
+        return wrapper
+    return decorator
+
+def logger(func):
+    """
+    Логгер вызова функций.
+    """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        print(f"Вызван {func.__name__} с args={args} kwargs={kwargs}")
+        print(f"Вызвана функция {func.__name__} с args={args} kwargs={kwargs}")
         return func(*args, **kwargs)
     return wrapper
