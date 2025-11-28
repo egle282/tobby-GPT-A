@@ -4,6 +4,9 @@ from loader import bot
 @bot.message_handler(commands=['...'])
 def func(...):
 
+def is_enabled_cb():
+    return True
+    
 # ===========
 # СТАРТОВОЕ МЕНЮ
 # ===========
