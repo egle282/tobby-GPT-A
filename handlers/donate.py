@@ -1,6 +1,9 @@
 from loader import bot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+def is_enabled_cb():
+    return True
+
 @bot.message_handler(commands=['donate'])
 @bot.message_handler(func=lambda m: m.text and m.text.lower() == "донат")
 def handle_donate(msg):
