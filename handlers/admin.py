@@ -4,6 +4,9 @@ from telebot import types
 from utils.subscription import add_subscriber, remove_subscriber
 from config import ADMINS
 
+def is_enabled_cb():
+    return True
+
 @bot.message_handler(commands=['add_subscriber'])
 def admin_add_sub(msg):
     if msg.from_user.id not in ADMINS:
