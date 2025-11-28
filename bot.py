@@ -12,4 +12,6 @@ import handlers.common_features   # здесь /start, /help, бесплатны
 import handlers.premium_features # здесь премиальные/лимитные команды
 
 if __name__ == '__main__':
+    bot.remove_webhook()
     bot.infinity_polling()
+ 
