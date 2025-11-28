@@ -3,9 +3,6 @@ from loader import bot
 from telebot import TeleBot
 from utils.limits import can_use_feature, add_user_action
 
-def is_enabled_cb():
-    return True
-
 from loader import bot
 @bot.message_handler(commands=['...'])
 def func(...):
