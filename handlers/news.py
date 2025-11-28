@@ -4,6 +4,9 @@ from utils.keyboards import kb_main, kb_location
 from config import NEWS_API_KEY
 import requests
 
+def is_enabled_cb():
+    return True
+
 def get_city_from_location(lat, lon):
     url = "https://nominatim.openstreetmap.org/reverse"
     params = {'format': 'json', 'lat': lat, 'lon': lon, 'zoom': 10, 'addressdetails': 1}
