@@ -1,12 +1,5 @@
-from telebot import TeleBot
 from loader import bot
 
-@bot.message_handler(commands=['...'])
-def func(...):
-
-def is_enabled_cb():
-    return True
-    
 # ===========
 # СТАРТОВОЕ МЕНЮ
 # ===========
@@ -68,7 +61,6 @@ def handle_premium(msg):
         "<b>Подключить подписку — напишите /support</b>",
         parse_mode='HTML',
     )
-
 # ===========
 # КОМАНДА ЛИМИТЫ
 # ===========
@@ -84,6 +76,7 @@ def handle_limits(msg):
         "- /cabinet, /vip, /noads доступны только с подпиской!\n",
         parse_mode='HTML',
     )
+
 # ===========
 # (ПРИМЕРЫ БЕСПЛАТНЫХ ФИЧ — ДОБАВЬ СВОИ)
 # ===========
@@ -96,4 +89,4 @@ def handle_weather(msg):
 def handle_joke(msg):
     bot.send_message(msg.chat.id, "Почему программисты путают Хэллоуин и Рождество? Потому что 31 OCT = 25 DEC :)")
 
-# ... и т.п. — свои другие свободные команды
+# ... здесь можешь добавлять свои другие свободные команды по аналогии.
