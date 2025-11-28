@@ -1,6 +1,9 @@
 from loader import bot
 from utils.keyboards import kb_main
 
+def is_enabled_cb():
+    return True
+
 @bot.message_handler(commands=['start'])
 def handle_start(msg):
     bot.send_message(
