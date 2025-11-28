@@ -22,3 +22,23 @@ def is_admin(user_id, *args, **kwargs):
     """
     ADMIN_IDS = [12345678]  # замени на реальные ID
     return user_id in ADMIN_IDS
+def is_beta_tester(user_id, *args, **kwargs):
+    """Проверяет, является ли пользователь бета-тестером."""
+    BETA_TESTERS = [12345, 67890]
+    return user_id in BETA_TESTERS
+
+def has_active_trial(user_id, *args, **kwargs):
+    """Псевдозаглушка: у всех пользователей активный пробный период."""
+    return True
+
+def check_daily_limit(user_id, command, limit=3):
+    """
+    Псевдозаглушка для проверки, не исчерпан ли лимит на выполнение команды.
+    В реальной версии должна связываться с хранилищем.
+    """
+    return True
+
+def is_support(user_id, *args, **kwargs):
+    """Проверяет, является ли пользователь поддержкой (support team)."""
+    SUPPORT_IDS = [11111111, 22222222]  # подставь реальные ID
+    return user_id in SUPPORT_IDS
