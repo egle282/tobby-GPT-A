@@ -15,3 +15,4 @@ requests
 numpy
 tesserocr
 python-dotenv  # если хотите подключить .env для секретов
+gunicorn
