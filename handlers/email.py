@@ -4,6 +4,9 @@ from utils.keyboards import kb_main
 from modules.send_email import SendEmail
 from config import ADMIN_EMAIL
 
+def is_enabled_cb():
+    return True
+
 send_email_module = SendEmail(bot, lambda name: True, ADMIN_EMAIL)  # Разреши по желанию
 @bot.message_handler(func=lambda msg: msg.text == "Отправить Email")
 def email_start(msg):
